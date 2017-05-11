@@ -1,0 +1,230 @@
+---
+id: 332a933d-7a5d-48e5-8554-c2d68061012e
+title: StackView
+uti: com.xamarin.workbook
+platforms:
+- iOS
+---
+
+### Stack Views
+
+The goal of this workbook is to show how to create a complex UI using **nested stack views**.
+
+First let’s define all our UI elements.
+
+```csharp
+var layoutGuide = RootViewController.View.LayoutMarginsGuide;
+
+var image = new UIImageView (UIImage.FromFile ("xamagon.png"));
+var firstNameLabel = new UILabel {
+    Text = "First",
+};
+var middleNameLabel = new UILabel {
+    Text = "Middle"
+};
+var lastNameLabel = new UILabel {
+    Text = "Laster"
+};
+var firstNameTextField = new UITextField {
+    Placeholder = "Enter First Name",
+    BorderStyle = UITextBorderStyle.RoundedRect
+};
+var middleNameTextField = new UITextField {
+    Placeholder = "Enter Middle Name",
+    BorderStyle = UITextBorderStyle.RoundedRect
+};
+var lastNameTextField = new UITextField {
+    Placeholder = "Enter Last Name",
+    BorderStyle = UITextBorderStyle.RoundedRect
+};
+var notes = new UITextView {
+    Text = "Notes:",
+    BackgroundColor = UIColor.LightGray
+};
+var saveButton = UIButton.FromType (UIButtonType.System);
+saveButton.SetTitle ("Save", UIControlState.Normal);
+var cancelButton = UIButton.FromType (UIButtonType.System);
+cancelButton.SetTitle ("Cancel", UIControlState.Normal);
+var clearButton = UIButton.FromType (UIButtonType.System);
+clearButton.SetTitle ("Clear", UIControlState.Normal);
+```
+
+Setup all the stack views.
+
+```csharp
+var rootStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Vertical,
+    TranslatesAutoresizingMaskIntoConstraints = false
+};
+var upperStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Horizontal,
+};
+var firstNameStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Horizontal,
+};
+var middleNameStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Horizontal,
+};
+var lastNameStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Horizontal,
+};
+var nameRowsStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Vertical,
+};
+var buttonsStackView = new UIStackView {
+    Axis = UILayoutConstraintAxis.Horizontal,
+};
+```
+
+```csharp
+RootViewController.View.AddSubview (rootStackView);
+rootStackView.LeadingAnchor.ConstraintEqualTo (layoutGuide.LeadingAnchor).Active = true;
+rootStackView.TrailingAnchor.ConstraintEqualTo (layoutGuide.TrailingAnchor).Active = true;
+rootStackView.TopAnchor.ConstraintEqualTo (layoutGuide.TopAnchor, 30).Active = true;
+layoutGuide.BottomAnchor.ConstraintEqualTo (rootStackView.BottomAnchor, 20).Active = true;
+```
+
+We need to work from the inside out.
+
+Let’s add all the stack views to each others and let’s include their UI elements.
+
+```csharp
+rootStackView.AddArrangedSubview (upperStackView);
+rootStackView.AddArrangedSubview (notes);
+rootStackView.AddArrangedSubview (buttonsStackView);
+
+upperStackView.AddArrangedSubview (image);
+upperStackView.AddArrangedSubview (nameRowsStackView);
+
+nameRowsStackView.AddArrangedSubview (firstNameStackView);
+nameRowsStackView.AddArrangedSubview (middleNameStackView);
+nameRowsStackView.AddArrangedSubview (lastNameStackView);
+
+firstNameStackView.AddArrangedSubview (firstNameLabel);
+firstNameStackView.AddArrangedSubview (firstNameTextField);
+
+middleNameStackView.AddArrangedSubview (middleNameLabel);
+middleNameStackView.AddArrangedSubview (middleNameTextField);
+
+lastNameStackView.AddArrangedSubview (lastNameLabel);
+lastNameStackView.AddArrangedSubview (lastNameTextField);
+
+buttonsStackView.AddArrangedSubview (saveButton);
+buttonsStackView.AddArrangedSubview (cancelButton);
+buttonsStackView.AddArrangedSubview (clearButton);
+```
+
+Setup the stack views attributes to improve the layout.
+
+As a reminder:
+
+* The `Axis` property determines the stack’s orientation, either vertically or horizontally.
+
+* The D`istribution` property determines the layout of the arranged views along the stack’s axis.
+
+* The `Alignment` property determines the layout of the arranged views perpendicular to the stack’s axis.
+
+* The `Spacing` property determines the minimum spacing between arranged views.
+
+```csharp
+rootStackView.Alignment = UIStackViewAlignment.Fill;
+rootStackView.Distribution = UIStackViewDistribution.Fill;
+rootStackView.Spacing = 8;
+```
+
+```csharp
+upperStackView.Alignment = UIStackViewAlignment.Fill;
+upperStackView.Distribution = UIStackViewDistribution.Fill;
+upperStackView.Spacing = 8;
+```
+
+```csharp
+nameRowsStackView.Alignment = UIStackViewAlignment.Fill;
+nameRowsStackView.Distribution = UIStackViewDistribution.Fill;
+nameRowsStackView.Spacing = 8;
+```
+
+```csharp
+firstNameStackView.Alignment = UIStackViewAlignment.FirstBaseline;
+middleNameStackView.Alignment = UIStackViewAlignment.FirstBaseline;
+lastNameStackView.Alignment = UIStackViewAlignment.FirstBaseline;
+
+firstNameStackView.Distribution = UIStackViewDistribution.Fill;
+middleNameStackView.Distribution = UIStackViewDistribution.Fill;
+lastNameStackView.Distribution = UIStackViewDistribution.Fill;
+
+firstNameStackView.Spacing = 8;
+middleNameStackView.Spacing = 8;
+lastNameStackView.Spacing = 8;
+```
+
+```csharp
+buttonsStackView.Alignment = UIStackViewAlignment.FirstBaseline;
+buttonsStackView.Distribution = UIStackViewDistribution.FillEqually;
+buttonsStackView.Spacing = 8;
+```
+
+We need some additional constraints for the images and the text field.
+
+```csharp
+image.HeightAnchor.ConstraintEqualTo (image.WidthAnchor).Active = true;
+```
+
+```csharp
+firstNameTextField.WidthAnchor.ConstraintEqualTo (middleNameTextField.WidthAnchor).Active = true;
+firstNameTextField.WidthAnchor.ConstraintEqualTo (lastNameTextField.WidthAnchor).Active = true;
+```
+
+Content-hugging and compression-resistance (CHCR).
+
+This is the precize calibration of the UI.
+
+```csharp
+image.SetContentHuggingPriority (250, UILayoutConstraintAxis.Horizontal);
+image.SetContentHuggingPriority (250, UILayoutConstraintAxis.Vertical);
+image.SetContentCompressionResistancePriority (48, UILayoutConstraintAxis.Horizontal);
+image.SetContentCompressionResistancePriority (48, UILayoutConstraintAxis.Vertical);
+```
+
+```csharp
+firstNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Horizontal);
+firstNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Vertical);
+firstNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Horizontal);
+firstNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+```
+
+```csharp
+firstNameTextField.SetContentHuggingPriority (48, UILayoutConstraintAxis.Horizontal);
+firstNameTextField.SetContentHuggingPriority (250, UILayoutConstraintAxis.Vertical);
+firstNameTextField.SetContentCompressionResistancePriority (749, UILayoutConstraintAxis.Horizontal);
+firstNameTextField.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+```
+
+Let’s setup all the remaining labels and text fields with the same rules.
+
+```csharp
+middleNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Horizontal);
+middleNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Vertical);
+middleNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Horizontal);
+middleNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+middleNameTextField.SetContentHuggingPriority (48, UILayoutConstraintAxis.Horizontal);
+middleNameTextField.SetContentHuggingPriority (250, UILayoutConstraintAxis.Vertical);
+middleNameTextField.SetContentCompressionResistancePriority (749, UILayoutConstraintAxis.Horizontal);
+middleNameTextField.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+
+lastNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Horizontal);
+lastNameLabel.SetContentHuggingPriority (251, UILayoutConstraintAxis.Vertical);
+lastNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Horizontal);
+lastNameLabel.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+lastNameTextField.SetContentHuggingPriority (48, UILayoutConstraintAxis.Horizontal);
+lastNameTextField.SetContentHuggingPriority (250, UILayoutConstraintAxis.Vertical);
+lastNameTextField.SetContentCompressionResistancePriority (749, UILayoutConstraintAxis.Horizontal);
+lastNameTextField.SetContentCompressionResistancePriority (750, UILayoutConstraintAxis.Vertical);
+```
+
+```csharp
+notes.SetContentHuggingPriority (250, UILayoutConstraintAxis.Horizontal);
+notes.SetContentHuggingPriority (249, UILayoutConstraintAxis.Vertical);
+notes.SetContentCompressionResistancePriority (250, UILayoutConstraintAxis.Horizontal);
+notes.SetContentCompressionResistancePriority (250, UILayoutConstraintAxis.Vertical);
+```
